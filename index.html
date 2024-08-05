@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Result Management System</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #ffe69c;
+            --header-bg: #ffffff;
+            --text-color: #012970;
+            --form-bg: #a3cfbb;
+            --table-header-bg: #4CAF50;
+            --table-header-text: #ffffff;
+            --table-border: #ddd;
+            --table-row-hover: #f5f5f5;
+            --button-bg: #4CAF50;
+            --button-hover-bg: #45a049;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ced4da;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            color: var(--text-color);
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            margin-top: 100px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 25px;
+            color: var(--text-color);
+        }
+		
+
+        .degree-list, .batch-list, .year-list, .semester-list, .module-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .degree-item, .batch-item, .year-item, .semester-item, .module-item {
+            background-color: var(--secondary-color);
+            padding: 20px;
+            margin: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .degree-item:hover, .batch-item:hover, .year-item:hover, .semester-item:hover, .module-item:hover {
+            transform: scale(1.05);
+            background-color: var(--table-row-hover);
+        }
+
+        .form-container {
+            background-color: var(--form-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        /* General Form Element Styling */
+        .form-container input,
+        .form-container select,
+        .form-container button {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 8px; /* Reduced padding for shorter height */
+            font-size: 14px; /* Slightly smaller font size */
+            transition: border-color 0.3s, background-color 0.3s;
+            cursor: pointer;
+            width: 100%; /* Full width of the container */
+            max-width: 250px; /* Reduced maximum width */
+            box-sizing: border-box;
+        }
+
+        /* Specific Input Field Styling */
+        .form-container input {
+            width: calc(100% - 16px); /* Adjust width for reduced padding and border */
+        }
+
+        .form-container select {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 8px; /* Reduced padding for shorter height */
+            font-size: 14px; /* Slightly smaller font size */
+            transition: border-color 0.3s, background-color 0.3s;
+            cursor: pointer;
+            width: calc(100% - 16px); /* Adjust for reduced padding and border */
+            max-width: 250px; /* Reduced maximum width */
+            box-sizing: border-box;
+        }
+
+        .form-container button {
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: calc(100% - 16px); /* Adjust for reduced padding and border */
+            max-width: 250px; /* Reduced maximum width */
+        }
+
+        .form-container button:hover {
+            background-color: var(--button-hover-bg);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background-color: var(--table-header-bg);
+            color: var(--table-header-text);
+            text-align: center;
+            padding: 12px;
+            border-bottom: 2px solid var(--table-border);
+        }
+
+        td {
+            text-align: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--table-border);
+        }
+
+        tr:hover {
+            background-color: var(--table-row-hover);
+        }
+
+        .editable-table td input {
+            border: none;
+            width: 100%;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Dropdown Menu Styling */
+        .form-container select {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 8px; /* Reduced padding for shorter height */
+            font-size: 14px; /* Slightly smaller font size */
+            transition: border-color 0.3s, background-color 0.3s;
+            cursor: pointer;
+            width: calc(100% - 16px); /* Adjust for reduced padding and border */
+            max-width: 250px; /* Reduced maximum width */
+            box-sizing: border-box;
+        }
+
+        .form-container select:focus {
+            border-color: var(--primary-color);
+            background-color: #ffffff;
+        }
+
+        .form-container option {
+            padding: 8px; /* Reduced padding for shorter height */
+        }
+
+        .form-container select::-ms-expand {
+            display: none;
+        }
+
+        .select-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%; /* Adjust this value as needed */
+        }
+
+        .select-wrapper::after {
+            content: '▼';
+            font-size: 14px; /* Slightly smaller arrow */
+            color: var(--text-color);
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .form-container input,
+            .form-container select,
+            .form-container button {
+                width: calc(100% - 18px); /* Adjust for padding and border on smaller screens */
+                font-size: 14px;
+            }
+        }
+
+    </style>
+</head>
+
+
+
+<body>
+    <header>
+        <h1>Exam Result Management System</h1>
+    </header>
+    <div class="container" id="mainContent">
+        <!-- Content will be dynamically loaded here -->
+    </div>
+
+    <script>
+const degrees = ['Computer Science', 'Information Technology', 'Engineering'];
+let batches = JSON.parse(localStorage.getItem('batches')) || {};
+let modules = JSON.parse(localStorage.getItem('modules')) || {};
+let marksData = JSON.parse(localStorage.getItem('marksData')) || {};
+
+function showDegrees() {
+    document.getElementById('mainContent').innerHTML = `
+        <h2>Degrees</h2>
+        <div class="degree-list" id="degreeList">
+            ${degrees.map(degree => `<div class="degree-item" onclick="showBatches('${degree}')">${degree}</div>`).join('')}
+        </div>
+    `;
+}
+
+function showBatches(degree) {
+    document.getElementById('mainContent').innerHTML = `
+        <h2>${degree} - Batches</h2>
+        <button class="form-container" onclick="showAddBatchForm('${degree}')">Add Batch</button>
+        <div id="batchList" class="batch-list"></div>
+        <button onclick="showDegrees()">Back to Degrees</button>
+    `;
+    const batchList = document.getElementById('batchList');
+    (batches[degree] || []).forEach(batch => {
+        const div = document.createElement('div');
+        div.classList.add('batch-item');
+        div.textContent = batch.name;
+        div.onclick = () => showYearsAndSemesters(degree, batch.name);
+        batchList.appendChild(div);
+    });
+}
+
+function showAddBatchForm(degree) {
+    document.getElementById('mainContent').innerHTML = `
+        <h2>Add Batch for ${degree}</h2>
+        <div class="form-container">
+            <label for="batchName">Batch Name:</label>
+            <input type="text" id="batchName" required>
+            <label for="years">Number of Years:</label>
+            <input type="number" id="years" required>
+            <label for="semesters">Number of Semesters per Year:</label>
+            <input type="number" id="semesters" required>
+            <button onclick="addBatch('${degree}')">Add Batch</button>
+        </div>
+        <button onclick="showBatches('${degree}')">Back to Batches</button>
+    `;
+}
+
+function addBatch(degree) {
+    const batchName = document.getElementById('batchName').value;
+    const years = parseInt(document.getElementById('years').value, 10);
+    const semesters = parseInt(document.getElementById('semesters').value, 10);
+
+    if (batchName && !isNaN(years) && !isNaN(semesters)) {
+        if (!batches[degree]) batches[degree] = [];
+        batches[degree].push({ name: batchName, years, semesters });
+        localStorage.setItem('batches', JSON.stringify(batches));
+        showBatches(degree);
+    } else {
+        alert('Please fill all fields correctly.');
+    }
+}
+
+function showYearsAndSemesters(degree, batchName) {
+    const batch = (batches[degree] || []).find(b => b.name === batchName);
+    if (!batch) return;
+
+    document.getElementById('mainContent').innerHTML = `
+        <h2>${degree} - ${batchName}</h2>
+		<div class="form-container">
+			<label for="yearsDropdown">Select Year:</label>
+			<select id="yearsDropdown" onchange="updateSemesters('${degree}', '${batchName}')">
+				${Array.from({ length: batch.years }, (_, i) => `<option value="${i + 1}">Year ${i + 1}</option>`).join('')}
+			</select>
+			<label for="semestersDropdown">Select Semester:</label>
+			<select id="semestersDropdown" onchange="updateAddModuleButton('${degree}', '${batchName}')">
+				<!-- Semesters will be dynamically populated here -->
+			</select>
+			<button id="addModuleButton" class="hidden" onclick="showAddModulePage('${degree}', '${batchName}')">Add Module</button>
+		</div>
+
+        <div class="form-container hidden" id="moduleContainer">
+            <label for="moduleDropdown">Select Module:</label>
+            <select id="moduleDropdown" onchange="goToModulePage('${degree}', '${batchName}')">
+                <!-- Modules will be dynamically populated here -->
+            </select>
+        </div>
+        <button onclick="showBatches('${degree}')">Back to Batches</button>
+    `;
+
+    // Initially populate semesters and show/hide the Add Module button
+    updateSemesters(degree, batchName);
+}
+
+function updateSemesters(degree, batchName) {
+    const year = document.getElementById('yearsDropdown').value;
+    const batch = (batches[degree] || []).find(b => b.name === batchName);
+    const semestersDropdown = document.getElementById('semestersDropdown');
+
+    semestersDropdown.innerHTML = Array.from({ length: batch.semesters }, (_, i) => `<option value="${i + 1}">Semester ${i + 1}</option>`).join('');
+    updateAddModuleButton(degree, batchName);
+}
+
+function updateAddModuleButton(degree, batchName) {
+    const year = document.getElementById('yearsDropdown').value;
+    const semester = document.getElementById('semestersDropdown').value;
+    const addModuleButton = document.getElementById('addModuleButton');
+    const moduleContainer = document.getElementById('moduleContainer');
+
+    if (year && semester) {
+        addModuleButton.classList.remove('hidden');
+        moduleContainer.classList.remove('hidden');
+
+        const batchKey = `${degree}-${batchName}-Year${year}-Semester${semester}`;
+        const moduleDropdown = document.getElementById('moduleDropdown');
+
+        moduleDropdown.innerHTML = (modules[batchKey] || []).map(module => `<option value="${module}">${module}</option>`).join('');
+    } else {
+        addModuleButton.classList.add('hidden');
+        moduleContainer.classList.add('hidden');
+    }
+}
+
+function showAddModulePage(degree, batchName) {
+    const year = document.getElementById('yearsDropdown').value;
+    const semester = document.getElementById('semestersDropdown').value;
+
+    document.getElementById('mainContent').innerHTML = `
+        <h2>Add Module for ${degree} - ${batchName} - Year ${year} - Semester ${semester}</h2>
+        <div class="form-container">
+            <label for="moduleName">Module Name:</label>
+            <input type="text" id="moduleName" required>
+            <button onclick="addModule('${degree}', '${batchName}', '${year}', '${semester}')">Add Module</button>
+            <button onclick="showDeleteModuleForm('${degree}', '${batchName}', '${year}', '${semester}')" style="background-color: red;">Delete Module</button>
+        </div>
+        <button onclick="showYearsAndSemesters('${degree}', '${batchName}')">Back to Year & Semester Selection</button>
+        <div id="deleteModuleFormContainer" style="display: none;">
+            <h3>Delete Module</h3>
+            <label for="deleteModuleName">Module Name:</label>
+            <input type="text" id="deleteModuleName" required>
+            <label for="deleteYear">Year:</label>
+            <input type="text" id="deleteYear" required>
+            <label for="deleteSemester">Semester:</label>
+            <input type="text" id="deleteSemester" required>
+            <button onclick="deleteModule('${degree}', '${batchName}', '${year}', '${semester}')">Confirm Delete</button>
+        </div>
+        <select id="moduleDropdown"></select>
+    `;
+
+    // Update the module dropdown with the current modules
+    updateModuleDropdown(degree, batchName, year, semester);
+}
+
+function showDeleteModuleForm(degree, batchName, year, semester) {
+    const deleteForm = document.getElementById('deleteModuleFormContainer');
+    deleteForm.style.display = 'block';
+    document.getElementById('deleteYear').value = year;
+    document.getElementById('deleteSemester').value = semester;
+}
+
+function deleteModule(degree, batchName, year, semester) {
+    const moduleName = document.getElementById('deleteModuleName').value.trim();
+
+    if (moduleName) {
+        const batchKey = `${degree}-${batchName}-Year${year}-Semester${semester}`;
+        console.log('Deleting module from batchKey:', batchKey);  // Debugging line
+        console.log('Current modules:', modules);  // Debugging line
+
+        if (modules[batchKey]) {
+            const moduleIndex = modules[batchKey].indexOf(moduleName);
+            if (moduleIndex > -1) {
+                modules[batchKey].splice(moduleIndex, 1);
+                localStorage.setItem('modules', JSON.stringify(modules));
+
+                // Update the dropdown menu
+                updateModuleDropdown(degree, batchName, year, semester);
+
+                // Hide the delete form
+                document.getElementById('deleteModuleFormContainer').style.display = 'none';
+            } else {
+                alert('Module not found.');
+            }
+        } else {
+            alert('No modules found for this batch.');
+        }
+    } else {
+        alert('Please enter a module name.');
+    }
+}
+
+function updateModuleDropdown(degree, batchName, year, semester) {
+    const batchKey = `${degree}-${batchName}-Year${year}-Semester${semester}`;
+    const moduleDropdown = document.getElementById('moduleDropdown');
+
+    moduleDropdown.innerHTML = (modules[batchKey] || []).map(module => `<option value="${module}">${module}</option>`).join('');
+}
+
+function addModule(degree, batchName, year, semester) {
+    const moduleName = document.getElementById('moduleName').value.trim();
+    if (moduleName) {
+        const batchKey = `${degree}-${batchName}-Year${year}-Semester${semester}`;
+        if (!modules[batchKey]) modules[batchKey] = [];
+        modules[batchKey].push(moduleName);
+        localStorage.setItem('modules', JSON.stringify(modules));
+        showAddModulePage(degree, batchName);
+    } else {
+        alert('Please enter a module name.');
+    }
+}
+
+// Initialize the degrees view
+showDegrees();
+
+		function deleteModule(degree, batchName, year, semester) {
+			const moduleDropdown = document.getElementById('moduleDropdown');
+			const moduleName = moduleDropdown.value;
+
+			if (moduleName) {
+				const batchKey = `${degree}-${batchName}-Year${year}-Semester${semester}`;
+				if (modules[batchKey]) {
+					modules[batchKey] = modules[batchKey].filter(module => module !== moduleName);
+					localStorage.setItem('modules', JSON.stringify(modules));
+					showYearsAndSemesters(degree, batchName);
+				} else {
+					alert('No modules found for this selection.');
+				}
+			} else {
+				alert('Please select a module to delete.');
+			}
+		}
+
+        function goToModulePage(degree, batchName) {
+            const year = document.getElementById('yearsDropdown').value;
+            const semester = document.getElementById('semestersDropdown').value;
+            const module = document.getElementById('moduleDropdown').value;
+
+            if (module) {
+                document.getElementById('mainContent').innerHTML = `
+                    <h2>${degree} - ${batchName} - Year ${year} - Semester ${semester} - ${module}</h2>
+                    <div class="table-container">
+                        <table id="marksTable">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>CA1</th>
+                                    <th>CA2</th>
+                                    <th>CA3</th>
+                                    <th>Total CA - 60%</th>
+                                    <th>Total CA - 100%</th>
+                                    <th>Total FE Marks</th>
+                                    <th>Grade</th>
+                                    <th>Comment</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="marksTableBody">
+                                <!-- Marks rows will be dynamically added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <button onclick="showYearsAndSemesters('${degree}', '${batchName}')">Back to Year & Semester Selection</button>
+                    <button onclick="addMarksRow('${degree}', '${batchName}', '${year}', '${semester}', '${module}')">Add Row</button>
+                    <button onclick="saveMarks('${degree}', '${batchName}', '${year}', '${semester}', '${module}')">Submit</button>
+                `;
+
+                loadMarks(degree, batchName, year, semester, module);
+            } else {
+                alert('Please select a module.');
+            }
+        }
+
+        function addMarksRow(degree, batchName, year, semester, module) {
+            const tableBody = document.getElementById('marksTableBody');
+            const newRow = document.createElement('tr');
+
+            newRow.innerHTML = `
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td><button onclick="deleteRow(this)">Delete</button></td>
+            `;
+
+            tableBody.appendChild(newRow);
+        }
+
+        function deleteRow(button) {
+            const row = button.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+        }
+
+        function saveMarks(degree, batchName, year, semester, module) {
+            const tableBody = document.getElementById('marksTableBody');
+            const rows = tableBody.querySelectorAll('tr');
+            const marks = [];
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                marks.push({
+                    studentId: cells[0].textContent.trim(),
+                    ca1: cells[1].textContent.trim(),
+                    ca2: cells[2].textContent.trim(),
+                    ca3: cells[3].textContent.trim(),
+                    totalCA60: cells[4].textContent.trim(),
+                    totalCA100: cells[5].textContent.trim(),
+                    totalFE: cells[6].textContent.trim(),
+                    grade: cells[7].textContent.trim(),
+                    comment: cells[8].textContent.trim()
+                });
+            });
+
+            const batchKey = `${degree}-${batchName}-Year${year}-Semester${semester}-${module}`;
+            marksData[batchKey] = marks;
+            localStorage.setItem('marksData', JSON.stringify(marksData));
+            alert('Marks saved successfully.');
+        }
+
+        function loadMarks(degree, batchName, year, semester, module) {
+            const batchKey = `${degree}-${batchName}-Year${year}-Semester${semester}-${module}`;
+            const marks = marksData[batchKey] || [];
+            const tableBody = document.getElementById('marksTableBody');
+
+            tableBody.innerHTML = '';
+            marks.forEach(mark => {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td contenteditable="true">${mark.studentId}</td>
+                    <td contenteditable="true">${mark.ca1}</td>
+                    <td contenteditable="true">${mark.ca2}</td>
+                    <td contenteditable="true">${mark.ca3}</td>
+                    <td contenteditable="true">${mark.totalCA60}</td>
+                    <td contenteditable="true">${mark.totalCA100}</td>
+                    <td contenteditable="true">${mark.totalFE}</td>
+                    <td contenteditable="true">${mark.grade}</td>
+                    <td contenteditable="true">${mark.comment}</td>
+                    <td><button onclick="deleteRow(this)">Delete</button></td>
+                `;
+                tableBody.appendChild(newRow);
+            });
+        }
+
+        window.onload = showDegrees;
+    </script>
+</body>
+</html>
